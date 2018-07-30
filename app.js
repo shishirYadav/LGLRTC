@@ -2,17 +2,18 @@
  * Module dependencies.
  */
 var express = require('express')
-,	path = require('path')
-,	streams = require('./app/streams.js')();
+  , path = require('path')
+  , streams = require('./app/streams.js')();
 
 var favicon = require('serve-favicon')
-,	logger = require('morgan')
-,	methodOverride = require('method-override')
-,	bodyParser = require('body-parser')
-,	errorHandler = require('errorhandler');
+  , logger = require('morgan')
+  , methodOverride = require('method-override')
+  , bodyParser = require('body-parser')
+  , errorHandler = require('errorhandler');
 
 var app = express();
-
+var https = require('https');
+var fs = require("fs");
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
@@ -32,7 +33,15 @@ if ('development' == app.get('env')) {
 // routing
 require('./app/routes.js')(app, streams);
 
-var server = app.listen(app.get('port'), function(){
+var server = https.createServer({
+  key: fs.readFileSync('public/cert/cakey.pem'),
+  cert: fs.readFileSync('public/cert/cacert.pem'),
+  passphrase: '1471',
+  requestCert: false,
+  rejectUnauthorized: false
+}, app);
+
+var server = app.listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
