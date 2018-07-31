@@ -4,8 +4,8 @@ var PeerManager = (function () {
       config = {
         peerConnectionConfig: {
           iceServers: [
-            //{"url": "stun:192.168.2.9"},
-            {"url": "stun:stun.l.google.com:19302"}
+            {"url": "stun:192.168.43.10"},
+           // {"url": "stun:stun.l.google.com:19302"}
           ]
         },
         peerConnectionConstraints: {
