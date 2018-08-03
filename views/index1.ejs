@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html ng-app="projectRtc">
+
+<head>
+	<title>
+		<%= title %>
+	</title>
+	<base href="/" />
+	<link rel='stylesheet' href='/stylesheets/style.css' />
+
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="javascripts/adapter.js"></script>
+	<script type="text/javascript" src="javascripts/rtcClient.js"></script>
+
+	<script type="text/javascript" src="javascripts/angular.min.js">
+	</script>
+	<script type="text/javascript" src="javascripts/app1.js"></script>
+</head>
+
+<body>
+	<!-- <h1>
+		<%= header %>
+	</h1> -->
+
+	<div class="localStream" ng-controller="LocalStreamController as localStream" style="display: none	">
+		<p>
+			<%= username %>:
+				<input ng-model="localStream.name" />
+		</p>
+		<video id="localVideo" muted="muted" autoplay="true"></video>
+		<li ng-click="localStream.toggleCam()">
+			<a href>{{ localStream.cameraIsOn ? 'Stop' : 'Start' }}</a>
+		</li>
+		<div ng-show="localStream.cameraIsOn">
+			<p>
+				<%= share %>:</p>
+			<a>{{ localStream.link }}</a>
+		</div>
+	</div>
+
+	<%= include remote-streams %>
+
+		<p class="footer">
+			<%= footer %>
+		</p>
+</body>
+
+</html>
