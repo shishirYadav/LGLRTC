@@ -1,6 +1,6 @@
 <div class="localStream" ng-controller="LocalStreamController as localStream">
 	<p style="display: none;"><%= username %>: <input style="display: none" ng-model="localStream.name"/></p>
-	<video id="localVideo" muted="muted" autoplay="true" style="height: 100%;
+	<video id="localVideo"  playsinline="true" controls="true" muted="muted" autoplay="true" style="height: 100%;
     width: 100%;border: 0px;outline: 0px;"> </video>
 	<!-- <li ng-click="localStream.toggleCam()"> -->
 		<!-- <a href>{{ localStream.cameraIsOn ? 'Stop' : 'Start' }}</a> -->
