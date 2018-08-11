@@ -30,7 +30,6 @@ module.exports = function (app, streams) {
     var data = (JSON.parse(JSON.stringify(streamList)));
 
     res.status(200).json(data);
-    response.setHeader('nameUser', 'Shishir Yadav')
   };
 
   app.get('/streams.json', displayStreams);
