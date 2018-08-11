@@ -34,16 +34,9 @@ if ('development' == app.get('env')) {
 
 // routing
 require('./app/routes.js')(app, streams);
-// var server = https.createServer({
-//   key: fs.readFileSync('cert/cakey.pem'),
-//   cert: fs.readFileSync('cert/cacert.pem'),
-//   passphrase: '1471',
-//   requestCert: false,
-//   rejectUnauthorized: false
-// }, app);
-
-app.listen(app.get('port'));
-console.log("running on server " + app.get('port'));
+var server = app.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port')); 
+});
 
 var io = require('socket.io').listen(server);
 //var io = require('socket.io').listen(server);
