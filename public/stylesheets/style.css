@@ -26,9 +26,10 @@ li:hover {
 
 .localStream {
   display: inline-block;
-  top: 15px;
-  right: 15px;
-  float: right;
+  /* top: 15px; */
+  /* right: 15px; */
+  width: 100%;
+  /* float: right; */
 }
 
 .localStream video {

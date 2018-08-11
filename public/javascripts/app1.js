@@ -13,43 +13,69 @@
             optional: []
         }
     };
+	var constraintsSafari = window.constraints = {
+		audio: false,
+		video: true
+	};
 
-    app.factory('camera', ['$rootScope', '$window', function ($rootScope, $window) {
-        var camera = {};
-        camera.preview = $window.document.getElementById('localVideo');
+	app.factory('camera', ['$rootScope', '$window', function ($rootScope, $window) {
+		if (/Version\/[\d\.]+.*Safari/i.test(navigator.userAgent)) {
+			var camera = {};
+			const video = document.querySelector('video');
+			camera.preview = video;
+			console.log("print me============================ hsdsjf");
+			
+			requestUserMedia1(constraintsSafari)
+				.then(function (stream) {
+					const videoTracks = stream.getVideoTracks();
+					console.log('Got stream with constraints:', constraints);
+					console.log(`Using video device: ${videoTracks[0].label}`);
+					window.stream = stream; // make variable available to browser console
+					video.srcObject = stream;
+					attachMediaStream(camera.preview, stream);
+					client.setLocalStream(stream);
+					camera.stream = stream;
+					$rootScope.$broadcast('cameraIsOn', true);
+				})
+				.catch(Error('Failed to get access to local media.'));
 
-        //camera.start = function () {
-        requestUserMedia(mediaConfig)
-            .then(function (stream) {
-                console.log(stream);
-                attachMediaStream(camera.preview, stream);
-                client.setLocalStream(stream);
-                console.log("=================== inside factory " + JSON.stringify(client, null, 2));
-                camera.stream = stream;
-                $rootScope.$broadcast('cameraIsOn', true);
-            })
-            .catch(Error('Failed to get access to local media.'));
-        //};
-        // camera.stop = function () {
-        // 	return new Promise(function (resolve, reject) {
-        // 		try {
-        // 			//camera.stream.stop() no longer works
-        // 			for (var track in camera.stream.getTracks()) {
-        // 				track.stop();
-        // 			}
-        // 			camera.preview.src = '';
-        // 			resolve();
-        // 		} catch (error) {
-        // 			reject(error);
-        // 		}
-        // 	})
-        // 		.then(function (result) {
-        // 			$rootScope.$broadcast('cameraIsOn', false);
-        // 		});
-        // };
-        return camera;
+
+		}
+		else {
+			var camera = {};
+			camera.preview = $window.document.getElementById('localVideo');
+			//camera.start = function () {
+			requestUserMedia(mediaConfig)
+				.then(function (stream) {
+					console.log(stream);
+					attachMediaStream(camera.preview, stream);
+					client.setLocalStream(stream);
+					camera.stream = stream;
+					$rootScope.$broadcast('cameraIsOn', true);
+				})
+				.catch(Error('Failed to get access to local media.'));
+		}
+		//};
+		// camera.stop = function () {
+		// 	return new Promise(function (resolve, reject) {
+		// 		try {
+		// 			//camera.stream.stop() no longer works
+		// 			for (var track in camera.stream.getTracks()) {
+		// 				track.stop();
+		// 			}
+		// 			camera.preview.src = '';
+		// 			resolve();
+		// 		} catch (error) {
+		// 			reject(error);
+		// 		}
+		// 	})
+		// 		.then(function (result) {
+		// 			$rootScope.$broadcast('cameraIsOn', false);
+		// 		});
+		// };
+		return camera;
     }]);
-
+    
     app.controller('RemoteStreamsController', ['camera', '$location', '$http', function (camera, $location, $http) {
         var rtc = this;
         rtc.remoteStreams = [];
