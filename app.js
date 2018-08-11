@@ -34,15 +34,15 @@ if ('development' == app.get('env')) {
 
 // routing
 require('./app/routes.js')(app, streams);
-var server = https.createServer({
-  key: fs.readFileSync('cert/cakey.pem'),
-  cert: fs.readFileSync('cert/cacert.pem'),
-  passphrase: '1471',
-  requestCert: false,
-  rejectUnauthorized: false
-}, app);
+// var server = https.createServer({
+//   key: fs.readFileSync('cert/cakey.pem'),
+//   cert: fs.readFileSync('cert/cacert.pem'),
+//   passphrase: '1471',
+//   requestCert: false,
+//   rejectUnauthorized: false
+// }, app);
 
-server.listen(app.get('port'));
+app.listen(app.get('port'));
 console.log("running on server " + app.get('port'));
 
 var io = require('socket.io').listen(server);
