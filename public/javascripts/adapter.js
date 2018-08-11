@@ -54,7 +54,7 @@ if (navigator.mozGetUserMedia) {
         }
       }
     }
-    return new mozRTCPeerConnection(pcConfig, pcConstraints);
+    return new RTCPeerConnection(pcConfig, pcConstraints);
   };
 
   // The RTCSessionDescription object.
@@ -210,18 +210,147 @@ else if (navigator.webkitGetUserMedia) {
     to.src = from.src;
   };
 }
-else if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream){
-  webrtcDetectedBrowser = 'iPhone';
+else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  webrtcDetectedBrowser = 'safari';
+  var result = navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
+  webrtcDetectedVersion = result[0].split('/')[1];
+
+  getUserMedia = navigator.mediaDevices.getUserMedia({ video: true });
+  navigator.getUserMedia = getUserMedia;
+  // The RTCPeerConnection object.
+  // RTCPeerConnection = function (pcConfig, pcConstraints) {
+  //   if (pcConfig && pcConfig.iceServers) {
+  //     for (var i = 0; i < pcConfig.iceServers.length; i++) {
+  //       if (!pcConfig.iceServers[i].hasOwnProperty('urls') && pcConfig.iceServers[i].hasOwnProperty('url')) {
+  //         pcConfig.iceServers[i].urls = pcConfig.iceServers[i].url;
+  //         delete pcConfig.iceServers[i].url;
+  //       }
+  //     }
+  //   }
+  //   return new RTCPeerConnection(pcConfig, pcConstraints);
+  // };
+  // Creates iceServer from the url for Chrome M33 and earlier.
+  window.createIceServer = function (url, username, password) {
+    var iceServer = null;
+    var urlParts = url.split(':');
+    if (urlParts[0].indexOf('stun') === 0) {
+      // Create iceServer with stun url.
+      iceServer = {
+        'url': url
+      };
+    } else if (urlParts[0].indexOf('turn') === 0) {
+      // Chrome M28 & above uses below TURN format.
+      iceServer = {
+        'url': url,
+        'credential': password,
+        'username': username
+      };
+    }
+    return iceServer;
+  };
+
+  // Creates an ICEServer object from multiple URLs.
+  window.createIceServers = function (urls, username, password) {
+    return {
+      'urls': urls,
+      'credential': password,
+      'username': username
+    };
+  };
+
+   // The RTCPeerConnection object.
+   RTCPeerConnection = function (pcConfig, pcConstraints) {
+    // .urls is not supported in FF yet.
+    if (pcConfig && pcConfig.iceServers) {
+      for (var i = 0; i < pcConfig.iceServers.length; i++) {
+        if (pcConfig.iceServers[i].hasOwnProperty('url')) {
+          pcConfig.iceServers[i].urls = pcConfig.iceServers[i].url;
+          delete pcConfig.iceServers[i].url;
+        }
+      }
+    }
+    return new RTCPeerConnection(pcConfig, pcConstraints);
+  };
+  // Attach a media stream to an element.
+  // attachMediaStream = function (element, stream) {
+  //   console.log("====== attaching media inside safari ");
+  //   element.srcObject = stream;
+  // };
+    // Attach a media stream to an element.
+    attachMediaStream = function (element, stream) {
+      if (typeof element.srcObject !== 'undefined') {
+        console.log("====== attaching media inside safari ");
+        element.srcObject = stream;
+      } else if (typeof element.mozSrcObject !== 'undefined') {
+        element.mozSrcObject = stream;
+      } else if (typeof element.src !== 'undefined') {
+        element.src = URL.createObjectURL(stream);
+      } else {
+        console.log('Error attaching stream to element.');
+      }
+    };
   
+    reattachMediaStream = function (to, from) {
+      to.src = from.src;
+    };
+  // reattachMediaStream = function (to, from) {
+  //   console.log('====== Reattaching media stream');
+  //   to.srcObject = from.srcObject;
+  // };
 }
 else {
-  console.log('I am on IOS============> '+/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
   console.log('Browser does not appear to be WebRTC-capable');
 }
+
+//=====================Add on===========
+// const constraintsSafari = window.constraints = {
+//   audio: false,
+//   video: true
+// };
+
+// function handleSuccess(stream) {
+//   //const video = document.querySelector('video');
+//   const videoTracks = stream.getVideoTracks();
+//   console.log('Got stream with constraints:', constraints);
+//   console.log(`Using video device: ${videoTracks[0].label}`);
+//   //window.stream = stream; // make variable available to browser console
+//   //video.srcObject = stream;
+// }
+
+// function handleError(error) {
+//   if (error.name === 'ConstraintNotSatisfiedError') {
+//     let v = constraints.video;
+//     errorMsg(`The resolution ${v.width.exact}x${v.height.exact} px is not supported by your device.`);
+//   } else if (error.name === 'PermissionDeniedError') {
+//     errorMsg('Permissions have not been granted to use your camera and ' +
+//       'microphone, you need to allow the page access to your devices in ' +
+//       'order for the demo to work.');
+//   }
+//   errorMsg(`getUserMedia error: ${error.name}`, error);
+// }
+
+// function errorMsg(msg, error) {
+//   const errorElement = document.querySelector('#errorMsg');
+//   errorElement.innerHTML += `<p>${msg}</p>`;
+//   if (typeof error !== 'undefined') {
+//     console.error(error);
+//   }
+// }
+//===============================
 
 // Returns the result of getUserMedia as a Promise.
 function requestUserMedia(constraints) {
   return new Promise(function (resolve, reject) {
+    // if (navigator.mediaDevices.getUserMedia) {
+    //   var constraints = { audio: true, video: true };
+
+    //   navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess);
+
+    //   var handleSuccess = function (stream) { 
+    //       resolve(stream);
+    //   };
+    // }
+    // else{
     var onSuccess = function (stream) {
       resolve(stream);
     };
@@ -230,10 +359,60 @@ function requestUserMedia(constraints) {
     };
 
     try {
-      getUserMedia(constraints, onSuccess, onError);
+      if (/Version\/[\d\.]+.*Safari/i.test(navigator.userAgent)) {
+        // navigator.mediaDevices.getUserMedia({
+        //   audio: true,
+        //   video: { facingMode: "user" }
+        // }, function (stream) {
+        //   video.srcObject = stream;
+        //   //video.src = window.URL.createObjectURL(stream);
+        // },
+        //   function (err) {
+        //     alert(err.name);
+        //   });
+        navigator.mediaDevices.getUserMedia(constraintsSafari)
+        .then(handleSuccess)
+        .catch(handleError);
+      }
+      else {
+        getUserMedia(constraints, onSuccess, onError);
+
+      }
     } catch (e) {
       reject(e);
     }
+    //}
+
+  });
+}
+
+function requestUserMedia1(constraints) {
+  return new Promise(function (resolve, reject) {
+    // if (navigator.mediaDevices.getUserMedia) {
+    //   var constraints = { audio: true, video: true };
+
+    //   navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess);
+
+    //   var handleSuccess = function (stream) { 
+    //       resolve(stream);
+    //   };
+    // }
+    // else{
+    var onSuccess = function (stream) {
+      resolve(stream);
+    };
+    var onError = function (error) {
+      reject(error);
+    };
+
+    try {
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(onSuccess)
+        .catch(onError);
+    } catch (e) {
+      reject(e);
+    }
+
   });
 }
 
