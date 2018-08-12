@@ -48,6 +48,10 @@ li:hover {
   width: 100%;
 }
 
+div#remoteVideosContainer video {
+    width: 100%;
+}
+
 .remoteStreams td:hover {
   cursor: pointer;
   background-color: #aaa;
