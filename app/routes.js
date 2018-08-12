@@ -1,13 +1,14 @@
 var request = require('request');
+var userId= '';
 module.exports = function (app, streams) {
   // GET home 
   var index = function (req, res) {
     console.log(req.query.userId);
-    var userId = req.query.userId;
+    userId = req.query.userId;
     var options = {
       method: 'POST',
       url: 'http://23.101.141.185:3000/letsgolive/api/v1/liveChanel.php',
-      body: '{"user_id":'+userId+',"chanel":"chanel"}'
+      body: '{"user_id":'+userId+',"chanel":"channel"}'
     };
 
     request(options, function (error, response, body) {
@@ -49,8 +50,18 @@ module.exports = function (app, streams) {
   app.get('/', index);
   app.get('/:id', index1);
   app.post('/getChannel', function (req, res) {
-    console.log("============== req " + JSON.stringify(req.body));
-    var channel = req.body.link;
+    var channel = req.body.link.split('/')[1];
+    var options = {
+      method: 'POST',
+      url: 'http://23.101.141.185:3000/letsgolive/api/v1/liveChanel.php',
+      body: '{"user_id":'+userId+',"chanel":"'+channel+'"}'
+    };
+
+    request(options, function (error, response, body) {
+      if (error) throw new Error(error);
+
+      console.log(body);
+    });
     console.log("==============" + channel);
   });
 }
