@@ -35,8 +35,8 @@ li:hover {
 .localStream video {
     border: 5px solid rgb(119, 119, 119);
     outline: 0px none;
-    height: 240px;
-    width: 320px;
+    /*height: 240px;*/
+    width: 100%;
 }
 
 .remoteStreams{
