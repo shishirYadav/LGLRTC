@@ -259,16 +259,8 @@ else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
   };
 
    // The RTCPeerConnection object.
-   RTCPeerConnection = function (pcConfig, pcConstraints) {
-    // .urls is not supported in FF yet.
-    if (pcConfig && pcConfig.iceServers) {
-      for (var i = 0; i < pcConfig.iceServers.length; i++) {
-        if (pcConfig.iceServers[i].hasOwnProperty('url')) {
-          pcConfig.iceServers[i].urls = pcConfig.iceServers[i].url;
-          delete pcConfig.iceServers[i].url;
-        }
-      }
-    }
+  // The RTCPeerConnection object.
+  RTCPeerConnection = function (pcConfig, pcConstraints) {
     return new RTCPeerConnection(pcConfig, pcConstraints);
   };
   // Attach a media stream to an element.
